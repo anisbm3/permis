@@ -1,102 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:pp/Calendar.dart';
-import 'package:pp/Entreprise.dart';
-import 'package:pp/ListProjets.dart';
-import 'package:pp/permis.dart';
 
-import 'conf.dart';
-
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp();
-
-  static const appTitle = 'DWS';
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: appTitle,
-      theme: ThemeData(
-        primaryColor: const Color(0xFF1b418c),
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const MyHomePage(title: appTitle),
-        '/home': (context) => const MyHomePage(title: appTitle),
-        '/conf': (context) => const ConfPage(),
-        '/projets': (context) => const Projetpage(),
-        '/permis': (context) => const Permispage(),
-        '/cal': (context) => const Calpage(),
-        '/ent': (context) => const Entreprisepage(),
-
-      },
-    );
-  }
-}
-
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Accueil',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Liste des projets',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: Liste des permis',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 3: Calendrier',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 4: Gestion des entreprises',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 5: Configuration',
-      style: optionStyle,
-    ),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+class ConfPage extends StatelessWidget {
+  const ConfPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.title,
-          style: const TextStyle(color: Colors.white),
-        ),
+        title: const Text('Configuration', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF1b418c),
         leading: Builder(
           builder: (context) {
             return IconButton(
               icon: const Icon(Icons.menu),
-                color: Color(0xFFE59900),
-
+              color: const Color(0xFFE59900),
               onPressed: () {
                 Scaffold.of(context).openDrawer();
               },
@@ -106,20 +23,22 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.account_circle),
-            color: Color(0xFFE59900),
+            color: const Color(0xFFE59900),
             onPressed: () {
               // Handle profile icon tap
             },
           ),
         ],
       ),
-
-      body: Center(
-        child: _widgetOptions[_selectedIndex],
+      body: const Center(
+        child: Text(
+          'Configuration Page',
+          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        ),
       ),
       drawer: Drawer(
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -144,7 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
-
               ListTile(
                 leading: IconButton(
                   icon: const Icon(Icons.home),
@@ -154,11 +72,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
                 title: const Text('Accueil', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                selected: true,
               ),
               ListTile(
                 leading: IconButton(
-                  icon: const Icon(Icons.list),
+                  icon: const Icon(Icons.view_list),
                   color: Colors.white,
                   onPressed: () {
                     Navigator.popAndPushNamed(context, '/projets');
@@ -169,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               ListTile(
                 leading: IconButton(
-                  icon: const Icon(Icons.view_list),
+                  icon: const Icon(Icons.list),
                   color: Colors.white,
                   onPressed: () {
                     Navigator.popAndPushNamed(context, '/permis');
@@ -215,8 +132,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-
     );
   }
-
 }
