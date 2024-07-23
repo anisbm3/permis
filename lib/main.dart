@@ -3,6 +3,7 @@ import 'package:pp/Calendar.dart';
 import 'package:pp/Entreprise.dart';
 import 'package:pp/ListProjets.dart';
 import 'package:pp/permis.dart';
+import 'package:pp/login.dart';
 
 import 'conf.dart';
 
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         '/permis': (context) => const Permispage(),
         '/cal': (context) => const Calpage(),
         '/ent': (context) => const Entreprisepage(),
-
+        '/login' : (context) => const Loginpage(),
       },
     );
   }
@@ -108,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: const Icon(Icons.account_circle),
             color: Color(0xFFE59900),
             onPressed: () {
-              // Handle profile icon tap
+              Navigator.popAndPushNamed(context, '/login');
             },
           ),
         ],

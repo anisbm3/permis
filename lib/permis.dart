@@ -30,11 +30,15 @@ class Permispage extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text(
-          'Liste de Permis',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        ),
+      body: new Stack(
+        children: <Widget>[
+          new Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(image: new AssetImage("assets/images/background.png"), fit: BoxFit.cover,),
+            ),
+          ),
+
+        ],
       ),
       drawer: Drawer(
         child: Container(
