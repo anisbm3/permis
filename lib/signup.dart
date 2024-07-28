@@ -1,63 +1,71 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class SignUpPage extends StatelessWidget {
+  const SignUpPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    const appTitle = 'Login Page';
+    const appTitle = 'Sign Up Page';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          appTitle,
-          style: const TextStyle(color: Colors.white),
+    return MaterialApp(
+      title: appTitle,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            appTitle,
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: const Color(0xFF1b418c),
+          // leading property removed
         ),
-        backgroundColor: const Color(0xFF1b418c),
-      ),
-      body: Stack(
-        children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/images/flask1.jpg"),
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
+        body: Stack(
+          children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/flask1.jpg"),
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                ),
               ),
             ),
-          ),
-          MyCustomForm(),
-        ],
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/signup');
-          },
-          child: Text('Créer un compte', style: TextStyle(color: Colors.white)),
+            MySignUpForm(),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: FloatingActionButton(
+                  backgroundColor: Color(0xFFE59900),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.arrow_back, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class MyCustomForm extends StatefulWidget {
-  const MyCustomForm({super.key});
+class MySignUpForm extends StatefulWidget {
+  const MySignUpForm({super.key});
 
   @override
-  MyCustomFormState createState() {
-    return MyCustomFormState();
+  MySignUpFormState createState() {
+    return MySignUpFormState();
   }
 }
 
-class MyCustomFormState extends State<MyCustomForm> {
+class MySignUpFormState extends State<MySignUpForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _login() async {
+  Future<void> _signUp() async {
     final email = _emailController.text;
     final password = _passwordController.text;
 
@@ -69,15 +77,16 @@ class MyCustomFormState extends State<MyCustomForm> {
     }
 
     final user = await DatabaseHelper().getUser(email);
-    if (user != null && user['password'] == password) {
+    if (user != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Connexion réussie !')),
+        SnackBar(content: Text('Cet email est déjà utilisé.')),
       );
-      Navigator.pushReplacementNamed(context, '/home1');  // Navigate to home1
     } else {
+      await DatabaseHelper().insertUser(email, password);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email ou mot de passe incorrect.')),
+        SnackBar(content: Text('Inscription réussie !')),
       );
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
@@ -157,8 +166,8 @@ class MyCustomFormState extends State<MyCustomForm> {
             padding: EdgeInsets.only(left: 120, right: 60, top: 50),
             child: ElevatedButton(
               style: style,
-              onPressed: _login,
-              child: const Text('Se connecter'),
+              onPressed: _signUp,
+              child: const Text('S\'inscrire'),
             ),
           ),
         ],

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Entreprisepage extends StatelessWidget {
-  const Entreprisepage({Key? key}) : super(key: key);
+class Home1page extends StatelessWidget {
+  const Home1page({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Entreprises', style: TextStyle(color: Colors.white)),
+        title: const Text('Bienvenue', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF1b418c),
         leading: Builder(
           builder: (context) {
@@ -32,7 +32,7 @@ class Entreprisepage extends StatelessWidget {
       ),
       body: const Center(
         child: Text(
-          'Entreprises',
+          'Accueil',
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
       ),
@@ -68,30 +68,32 @@ class Entreprisepage extends StatelessWidget {
                   icon: const Icon(Icons.home),
                   color: Colors.white,
                   onPressed: () {
-                    Navigator.popAndPushNamed(context, '/home');
+                    Navigator.popAndPushNamed(context, '/home1');
                   },
                 ),
                 title: const Text('Accueil', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+
+              ListTile(
+                leading: IconButton(
+                  icon: const Icon(Icons.view_list),
+                  color: Colors.white,
+                  onPressed: () {
+                    Navigator.popAndPushNamed(context, '/projets1');
+                  },
+                ),
+                title: const Text('Liste des Projets', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                selected: true,
               ),
               ListTile(
                 leading: IconButton(
                   icon: const Icon(Icons.list),
                   color: Colors.white,
                   onPressed: () {
-                    Navigator.popAndPushNamed(context, '/projets');
+                    Navigator.popAndPushNamed(context, '/permis1');
                   },
                 ),
-                title: const Text('Liste des projets', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-              ListTile(
-                leading: IconButton(
-                  icon: const Icon(Icons.view_list),
-                  color: Colors.white,
-                  onPressed: () {
-                    Navigator.popAndPushNamed(context, '/permis');
-                  },
-                ),
-                title: const Text('Liste de permis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                title: const Text('Liste des permis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 selected: true,
               ),
               ListTile(
@@ -99,7 +101,7 @@ class Entreprisepage extends StatelessWidget {
                   icon: const Icon(Icons.calendar_month),
                   color: Colors.white,
                   onPressed: () {
-                    Navigator.popAndPushNamed(context, '/cal');
+                    Navigator.popAndPushNamed(context, '/cal1');
                   },
                 ),
                 title: const Text('Calendrier', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -110,7 +112,7 @@ class Entreprisepage extends StatelessWidget {
                   icon: const Icon(Icons.assured_workload),
                   color: Colors.white,
                   onPressed: () {
-                    Navigator.popAndPushNamed(context, '/ent');
+                    Navigator.popAndPushNamed(context, '/ent1');
                   },
                 ),
                 title: const Text('Gestion des entreprises', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),

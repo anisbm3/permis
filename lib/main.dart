@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:pp/Calendar.dart';
+import 'package:pp/Calendar1.dart';
 import 'package:pp/Entreprise.dart';
+import 'package:pp/Entreprise1.dart';
 import 'package:pp/ListProjets.dart';
+import 'package:pp/ListProjets1.dart';
+import 'package:pp/conf1.dart';
+import 'package:pp/home.dart';
 import 'package:pp/permis.dart';
 import 'package:pp/login.dart';
+import 'package:pp/permis1.dart';
+import 'package:pp/signup.dart';
 
 import 'conf.dart';
 
@@ -26,11 +33,18 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MyHomePage(title: appTitle),
         '/home': (context) => const MyHomePage(title: appTitle),
         '/conf': (context) => const ConfPage(),
+        '/conf1': (context) => const Conf1Page(),
         '/projets': (context) => const Projetpage(),
+        '/projets1': (context) =>  Projet1page(),
         '/permis': (context) => const Permispage(),
+        '/permis1': (context) => const Permis1page(),
         '/cal': (context) => const Calpage(),
+        '/cal1': (context) => const Cal1page(),
         '/ent': (context) => const Entreprisepage(),
-        '/login' : (context) => const Loginpage(),
+        '/ent1': (context) =>  Entreprise1page(),
+        '/login' : (context) => const LoginPage(),
+        '/signup' : (context) => const SignUpPage(),
+        '/home1'   :(context) =>const Home1page()
       },
     );
   }
