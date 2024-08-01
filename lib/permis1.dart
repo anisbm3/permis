@@ -1,8 +1,49 @@
 import 'package:flutter/material.dart';
 
-class Permis1page extends StatelessWidget {
+class Permis1page extends StatefulWidget {
   const Permis1page({Key? key}) : super(key: key);
 
+  @override
+  _Permis1pageState createState() => _Permis1pageState();
+}
+
+class _Permis1pageState extends State<Permis1page> {
+  TextEditingController _dateController = TextEditingController();
+  TextEditingController _dateController1 = TextEditingController();
+
+
+  @override
+  void dispose() {
+    _dateController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      setState(() {
+        _dateController.text = "${picked.toLocal()}".split(' ')[0];
+      });
+    }
+  }
+  Future<void> _selectDate1(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      setState(() {
+        _dateController1.text = "${picked.toLocal()}".split(' ')[0];
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,15 +71,81 @@ class Permis1page extends StatelessWidget {
           ),
         ],
       ),
-      body: new Stack(
-        children: <Widget>[
-          new Container(
-            decoration: new BoxDecoration(
-              image: new DecorationImage(image: new AssetImage("assets/images/background.png"), fit: BoxFit.cover,),
-            ),
-          ),
+      body: Center(
+        child: ElevatedButton(
+          child: const Text("Créer un nouveau Permis"),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  scrollable: true,
+                  title: const Text('Login'),
+                  content: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Form(
+                      child: Column(
+                        children: <Widget>[
+                          TextFormField(
+                            controller: _dateController,
+                            decoration: InputDecoration(
+                              labelText: 'DateDebut',
+                              icon: Icon(Icons.calendar_today),
+                            ),
+                            readOnly: true,
+                            onTap: () => _selectDate(context),
+                          ),
+                          TextFormField(
+                            controller: _dateController1,
+                            decoration: InputDecoration(
+                              labelText: 'DateFin',
+                              icon: Icon(Icons.calendar_today),
+                            ),
+                            readOnly: true,
+                            onTap: () => _selectDate1(context),
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Lieu',
+                              icon: Icon(Icons.code),
+                            ),
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Projet',
+                              icon: Icon(Icons.work),
+                            ),
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Status',
+                              icon: Icon(Icons.done),
+                            ),
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Responsable',
+                              icon: Icon(Icons.man),
+                            ),
+                          ),
 
-        ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    ElevatedButton(
+                      child: const Text("Submit"),
+                      onPressed: () {
+                        // your code
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
       ),
       drawer: Drawer(
         child: Container(

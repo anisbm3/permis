@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         '/permis': (context) => const Permispage(),
         '/permis1': (context) => const Permis1page(),
         '/cal': (context) => const Calpage(),
-        '/cal1': (context) => const Cal1page(),
+        '/cal1': (context) =>  Cal1page(),
         '/ent': (context) => const Entreprisepage(),
         '/ent1': (context) =>  Entreprise1page(),
         '/login' : (context) => const LoginPage(),

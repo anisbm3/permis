@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'models/Entreprises.dart'; // Assurez-vous que le chemin est correct
-
+import 'models/Entreprises.dart';
 class Entreprise1page extends StatefulWidget {
   const Entreprise1page({Key? key}) : super(key: key);
 
@@ -141,7 +140,7 @@ class _Entreprise1pageState extends State<Entreprise1page> {
                                       Text('Raison Sociale: ${company['raisonsocial']}', style: TextStyle(fontSize: 16)),
                                       Text('Adresse: ${company['adress']}', style: TextStyle(fontSize: 16)),
                                       Text('Téléphone: ${company['tel']}', style: TextStyle(fontSize: 16)),
-                                      Text('Utilisateur ID: ${company['iduser']}', style: TextStyle(fontSize: 16)),
+                                      Text('Utilisateur mail: ${company['iduser']}', style: TextStyle(fontSize: 16)),
                                     ],
                                   ),
                                   Row(
@@ -155,7 +154,7 @@ class _Entreprise1pageState extends State<Entreprise1page> {
                                       IconButton(
                                         icon: Icon(Icons.delete),
                                         onPressed: () {
-                                          _deleteCompany(company['id']); // Assurez-vous que 'id' est la clé correcte
+                                          _deleteCompany(company['identreprise']);
                                         },
                                       ),
                                     ],
@@ -174,7 +173,7 @@ class _Entreprise1pageState extends State<Entreprise1page> {
           ),
           Center(
             child: ElevatedButton(
-              child: const Text("Open Popup"),
+              child: const Text("Créer une nouvelle entreprise"),
               onPressed: () {
                 showDialog(
                   context: context,
@@ -268,6 +267,7 @@ class _Entreprise1pageState extends State<Entreprise1page> {
                 );
               },
             ),
+
           ),
         ],
       ),

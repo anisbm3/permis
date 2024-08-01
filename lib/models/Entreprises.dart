@@ -38,7 +38,7 @@ class Entreprise {
             $_columnTel TEXT NOT NULL,
             $_columnIdUser INTEGER NOT NULL,
             FOREIGN KEY ($_columnIdUser) REFERENCES ${DatabaseHelper.usersTable}(${DatabaseHelper.columnUserId})
-          )
+          
         ''');
         } catch (e) {
           print('Error creating table: $e');
@@ -69,14 +69,32 @@ class Entreprise {
     final List<Map<String, dynamic>> maps = await db.query(_tableName);
     return maps;
   }
-
+  Future<List<int>> getUserIds() async {
+    final db = await _getDatabase();
+    final result = await db.query('users', columns: ['id']);
+    return result.map((e) => e['id'] as int).toList();
+  }
   Future<void> deleteEntreprise(int id) async {
     final db = await _getDatabase();
     await db.delete(
-      'entreprises',
-      where: 'id = ?',
+      'entreprise',
+      where: 'identreprise = ?',
       whereArgs: [id],
     );
   }
-
+  Future<void> updateEntreprise(int id, String nom, String raisonSocial, String address, String telephone, int idUser) async {
+    final db = await _getDatabase();
+    await db.update(
+      _tableName,
+      {
+        _columnName: nom,
+        _columnRaisonSocial: raisonSocial,
+        _columnAddress: address,
+        _columnTel: telephone,
+        _columnIdUser: idUser,
+      },
+      where: '$_columnId = ?',
+      whereArgs: [id],
+    );
+  }
 }

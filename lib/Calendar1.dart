@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class Cal1page extends StatelessWidget {
+
+/// The app which hosts the home page which contains the calendar on it.
+class Cal1page extends StatefulWidget {
   const Cal1page({Key? key}) : super(key: key);
 
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _Cal1pageState createState() => _Cal1pageState();
+
+}
+class _Cal1pageState extends State<Cal1page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Votre Calendrier', style: TextStyle(color: Colors.white)),
+        title: const Text('Vos Projets', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF1b418c),
         leading: Builder(
           builder: (context) {
@@ -30,10 +40,51 @@ class Cal1page extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text(
-          'Calendrier',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+      body: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: SfCalendar(
+          view: CalendarView.month,
+          todayHighlightColor: const Color(0xFF1b418c),
+          headerStyle: const CalendarHeaderStyle(
+            textAlign: TextAlign.center,
+            backgroundColor: const Color(0xFF1b418c),
+            textStyle: TextStyle(
+              color: const Color(0xFFE59900),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          viewHeaderStyle: const ViewHeaderStyle(
+            dayTextStyle: TextStyle(
+              color: const Color(0xFFE59900),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          monthViewSettings: const MonthViewSettings(
+            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
+            showAgenda: true,
+            agendaStyle: AgendaStyle(
+              backgroundColor: Colors.white,
+              appointmentTextStyle: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+              dateTextStyle: TextStyle(
+                color: const Color(0xFFE59900),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              dayTextStyle: TextStyle(
+                color: const Color(0xFFE59900),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
         ),
       ),
       drawer: Drawer(
@@ -75,23 +126,24 @@ class Cal1page extends StatelessWidget {
               ),
               ListTile(
                 leading: IconButton(
-                  icon: const Icon(Icons.list),
+                  icon: const Icon(Icons.view_list),
                   color: Colors.white,
                   onPressed: () {
                     Navigator.popAndPushNamed(context, '/projets1');
                   },
                 ),
-                title: const Text('Liste des projets', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                title: const Text('Liste des Projets', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                selected: true,
               ),
               ListTile(
                 leading: IconButton(
-                  icon: const Icon(Icons.view_list),
+                  icon: const Icon(Icons.list),
                   color: Colors.white,
                   onPressed: () {
                     Navigator.popAndPushNamed(context, '/permis1');
                   },
                 ),
-                title: const Text('Liste de permis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                title: const Text('Liste des permis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 selected: true,
               ),
               ListTile(

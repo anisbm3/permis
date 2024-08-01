@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+import 'package:path/path.dart';
+import 'models/Projets.dart';
 
 class Projet1page extends StatefulWidget {
   const Projet1page({Key? key}) : super(key: key);
@@ -8,15 +12,59 @@ class Projet1page extends StatefulWidget {
 }
 
 class _Projet1pageState extends State<Projet1page> {
-  TextEditingController _dateController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _codeController = TextEditingController();
+  final TextEditingController _dateDebutController = TextEditingController();
+  final TextEditingController _dateFinController = TextEditingController();
+  final TextEditingController _designationController = TextEditingController();
+  final TextEditingController _statusController = TextEditingController();
+  final TextEditingController _responsableController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _lieuController = TextEditingController();
+  File? _pickedPdf;
 
   @override
   void dispose() {
-    _dateController.dispose();
+    _codeController.dispose();
+    _dateDebutController.dispose();
+    _dateFinController.dispose();
+    _designationController.dispose();
+    _statusController.dispose();
+    _responsableController.dispose();
+    _descriptionController.dispose();
+    _lieuController.dispose();
     super.dispose();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  void _deleteProject(int id,BuildContext context) async {
+    try {
+      await Projets.instance.deleteProjets(id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Projet supprimé avec succès!')),
+      );
+      setState(() {}); // Refresh the UI after deleting the project
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la suppression du projet: $e')),
+      );
+    }
+  }
+
+
+  void _pickPdf() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null) {
+      setState(() {
+        _pickedPdf = File(result.files.single.path!);
+      });
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -25,9 +73,61 @@ class _Projet1pageState extends State<Projet1page> {
     );
     if (picked != null) {
       setState(() {
-        _dateController.text = "${picked.toLocal()}".split(' ')[0];
+        controller.text = "${picked.toLocal()}".split(' ')[0];
       });
     }
+  }
+
+  void _addProjet(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      final code = _codeController.text;
+      final dateDebut = DateTime.tryParse(_dateDebutController.text);
+      final dateFin = DateTime.tryParse(_dateFinController.text);
+      final designation = _designationController.text;
+      final status = _statusController.text;
+      final responsable = _responsableController.text;
+      final description = _descriptionController.text;
+      final lieu = _lieuController.text;
+      final pdfPath = _pickedPdf?.path;
+
+      if (dateDebut != null && dateFin != null) {
+        try {
+          await Projets.instance.insertProjet(
+            code,
+            dateDebut,
+            dateFin,
+            designation,
+            status,
+            responsable,
+            description,
+            lieu,
+            pdfPath ?? '',
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Projet ajouté avec succès!')),
+          );
+          _formKey.currentState!.reset();
+          _pickPdf();
+          setState(() {}); // Refresh the UI after adding the project
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur lors de l\'ajout du projet: $e')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Les dates doivent être valides')),
+        );
+      }
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _getAllProjects() async {
+    return await Projets.instance.getAllProjects();
+  }
+
+  void _editProject(Map<String, dynamic> project) {
+    // Implement edit functionality here
   }
 
   @override
@@ -57,95 +157,219 @@ class _Projet1pageState extends State<Projet1page> {
           ),
         ],
       ),
-      body: Center(
-        child: ElevatedButton(
-          child: const Text("Open Popup"),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  scrollable: true,
-                  title: const Text('Login'),
-                  content: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Form(
-                      child: Column(
-                        children: <Widget>[
-                          TextFormField(
-                            controller: _dateController,
-                            decoration: InputDecoration(
-                              labelText: 'Date',
-                              icon: Icon(Icons.calendar_today),
-                            ),
-                            readOnly: true,
-                            onTap: () => _selectDate(context),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          FutureBuilder<List<Map<String, dynamic>>>(
+            future: _getAllProjects(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Erreur: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text('Aucun projet trouvé.'));
+              } else {
+                return Expanded(
+                  child: ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final project = snapshot.data![index];
+                      return Card(
+                        margin: EdgeInsets.all(10),
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Code: ${project['code']}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                      Text('Date Debut: ${project['datedebut']}', style: TextStyle(fontSize: 16)),
+                                      Text('Date Fin: ${project['datefin']}', style: TextStyle(fontSize: 16)),
+                                      Text('Designation: ${project['designation']}', style: TextStyle(fontSize: 16)),
+                                      Text('Status: ${project['status']}', style: TextStyle(fontSize: 16)),
+                                      Text('Responsable: ${project['responsable']}', style: TextStyle(fontSize: 16)),
+                                      Text('Description: ${project['description']}', style: TextStyle(fontSize: 16)),
+                                      Text('Lieu: ${project['lieu']}', style: TextStyle(fontSize: 16)),
+                                     // Text('PDF: ${project['pdf']}', style: TextStyle(fontSize: 16)),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.edit, color: Colors.blue),
+                                        onPressed: () {
+                                          _editProject(project);
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.delete, color: Colors.red),
+                                        onPressed: () {
+                                          _deleteProject(project['idprojet'],context);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Email',
-                              icon: Icon(Icons.email),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+            },
+          ),
+          ElevatedButton(
+            child: const Text("Créer un nouveau Projet"),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    scrollable: true,
+                    title: const Text('Créer un nouveau Projet'),
+                    content: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            TextFormField(
+                              controller: _codeController,
+                              decoration: const InputDecoration(
+                                labelText: 'Code',
+                                icon: Icon(Icons.code),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the code';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Message',
-                              icon: Icon(Icons.message),
+                            TextFormField(
+                              controller: _dateDebutController,
+                              decoration: InputDecoration(
+                                labelText: 'Date Debut',
+                                icon: Icon(Icons.calendar_today),
+                              ),
+                              readOnly: true,
+                              onTap: () => _selectDate(context, _dateDebutController),
                             ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Name',
-                              icon: Icon(Icons.account_box),
+                            TextFormField(
+                              controller: _dateFinController,
+                              decoration: InputDecoration(
+                                labelText: 'Date Fin',
+                                icon: Icon(Icons.calendar_today),
+                              ),
+                              readOnly: true,
+                              onTap: () => _selectDate(context, _dateFinController),
                             ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Email',
-                              icon: Icon(Icons.email),
+                            TextFormField(
+                              controller: _designationController,
+                              decoration: const InputDecoration(
+                                labelText: 'Designation',
+                                icon: Icon(Icons.design_services),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the designation';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Message',
-                              icon: Icon(Icons.message),
+                            TextFormField(
+                              controller: _statusController,
+                              decoration: const InputDecoration(
+                                labelText: 'Status',
+                                icon: Icon(Icons.info),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the status';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Name',
-                              icon: Icon(Icons.account_box),
+                            TextFormField(
+                              controller: _responsableController,
+                              decoration: const InputDecoration(
+                                labelText: 'Responsable',
+                                icon: Icon(Icons.person),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the responsable';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Email',
-                              icon: Icon(Icons.email),
+                            TextFormField(
+                              controller: _descriptionController,
+                              decoration: const InputDecoration(
+                                labelText: 'Description',
+                                icon: Icon(Icons.description),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the description';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Message',
-                              icon: Icon(Icons.message),
+                            TextFormField(
+                              controller: _lieuController,
+                              decoration: const InputDecoration(
+                                labelText: 'Lieu',
+                                icon: Icon(Icons.location_on),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the location';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                        ],
+                            ElevatedButton(
+                              onPressed: _pickPdf,
+                              child: const Text('Choisir un fichier PDF'),
+                            ),
+                            if (_pickedPdf != null)
+                              Text('Fichier sélectionné: ${basename(_pickedPdf!.path)}'),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  actions: [
-                    ElevatedButton(
-                      child: const Text("Submit"),
-                      onPressed: () {
-                        // your code
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-        ),
+                    actions: [
+                      ElevatedButton(
+                        child: const Text("Soumettre"),
+                        onPressed: () {
+                          _addProjet(context);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      ElevatedButton(
+                        child: const Text("Annuler"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: Container(
