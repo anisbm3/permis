@@ -58,11 +58,43 @@ class Projets {
 
     return database;
   }
+  String get tableName => _tableName;
+  String get columnId => _columnId;
+  Future<void> updateProjet(
+      int id,
+      String code,
+      String dateDebut,
+      String dateFin,
+      String designation,
+      String status,
+      String responsable,
+      String description,
+      String lieu,
+      String pdfPath
+      ) async {
+    final db = await _getDatabase();
+    await db.update(
+      _tableName,
+      {
+        _columnCode: code,
+        _columnDebut: dateDebut,
+        _columnFin: dateFin,
+        _columnDesignation: designation,
+        _columnStatus: status,
+        _columnResponsable: responsable,
+        _columnDescription: description,
+        _columnLieu: lieu,
+        _columnPdf: pdfPath,
+      },
+      where: '$_columnId = ?',
+      whereArgs: [id],
+    );
+  }
 
 
   Future<void> insertProjet(String code,
-      DateTime datedebut,
-      DateTime datefin,
+      String datedebut,
+      String datefin,
       String designation,
       String status,
       String responsable,
@@ -74,8 +106,8 @@ class Projets {
       _tableName,
       {
         _columnCode: code,
-        _columnDebut: datedebut.millisecondsSinceEpoch,
-        _columnFin: datefin.millisecondsSinceEpoch,
+        _columnDebut: datedebut,
+        _columnFin: datefin,
         _columnDesignation: designation,
         _columnStatus: status,
         _columnResponsable: responsable,
@@ -100,4 +132,5 @@ class Projets {
       whereArgs: [id],
     );
   }
+
 }

@@ -60,9 +60,100 @@ class _Entreprise1pageState extends State<Entreprise1page> {
   }
 
   void _editCompany(Map<String, dynamic> company) {
-    // Logique pour éditer l'entreprise
-    print("Edit: $company");
+    // Create controllers with existing company data
+    final _nomController = TextEditingController(text: company['nom']);
+    final _raisonSocialeController = TextEditingController(text: company['raisonsocial']);
+    final _adresseController = TextEditingController(text: company['adress']);
+    final _telephoneController = TextEditingController(text: company['tel']);
+    final _utilisateurController = TextEditingController(text: company['iduser'].toString());
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Modifier l\'entreprise'),
+          content: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Form(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextFormField(
+                    controller: _nomController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nom',
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _raisonSocialeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Raison Sociale',
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _adresseController,
+                    decoration: const InputDecoration(
+                      labelText: 'Adresse',
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _telephoneController,
+                    decoration: const InputDecoration(
+                      labelText: 'Téléphone',
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _utilisateurController,
+                    decoration: const InputDecoration(
+                      labelText: 'ID Utilisateur',
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final nom = _nomController.text;
+                      final raisonSocial = _raisonSocialeController.text;
+                      final adresse = _adresseController.text;
+                      final telephone = _telephoneController.text;
+                      final utilisateur = int.tryParse(_utilisateurController.text);
+
+                      if (utilisateur != null) {
+                        try {
+                          await Entreprise.instance.updateEntreprise(
+                            company['identreprise'], // Assuming this is the ID of the company
+                            nom,
+                            raisonSocial,
+                            adresse,
+                            telephone,
+                            utilisateur,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Entreprise mise à jour avec succès!')),
+                          );
+                          Navigator.of(context).pop(); // Close the dialog
+                          setState(() {}); // Refresh the UI
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Erreur lors de la mise à jour de l\'entreprise: $e')),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('ID Utilisateur doit être un nombre valide')),
+                        );
+                      }
+                    },
+                    child: const Text('Mettre à jour'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
+
 
   void _deleteCompany(int id) async {
     try {
@@ -146,13 +237,13 @@ class _Entreprise1pageState extends State<Entreprise1page> {
                                   Row(
                                     children: [
                                       IconButton(
-                                        icon: Icon(Icons.edit),
+                                        icon: Icon(Icons.edit, color: Colors.blue),
                                         onPressed: () {
                                           _editCompany(company);
                                         },
                                       ),
                                       IconButton(
-                                        icon: Icon(Icons.delete),
+                                        icon: Icon(Icons.delete, color: Colors.red),
                                         onPressed: () {
                                           _deleteCompany(company['identreprise']);
                                         },

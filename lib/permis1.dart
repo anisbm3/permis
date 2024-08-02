@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pp/models/Projets.dart';
+import 'models/Permis.dart';
 
 class Permis1page extends StatefulWidget {
   const Permis1page({Key? key}) : super(key: key);
@@ -8,42 +10,10 @@ class Permis1page extends StatefulWidget {
 }
 
 class _Permis1pageState extends State<Permis1page> {
-  TextEditingController _dateController = TextEditingController();
-  TextEditingController _dateController1 = TextEditingController();
-
-
-  @override
-  void dispose() {
-    _dateController.dispose();
-    super.dispose();
+  Future<List<Map<String, dynamic>>> _getAllPermis() async {
+    return await Permis.instance.getAllPermis();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      setState(() {
-        _dateController.text = "${picked.toLocal()}".split(' ')[0];
-      });
-    }
-  }
-  Future<void> _selectDate1(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      setState(() {
-        _dateController1.text = "${picked.toLocal()}".split(' ')[0];
-      });
-    }
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,81 +41,69 @@ class _Permis1pageState extends State<Permis1page> {
           ),
         ],
       ),
-      body: Center(
-        child: ElevatedButton(
-          child: const Text("Créer un nouveau Permis"),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  scrollable: true,
-                  title: const Text('Login'),
-                  content: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Form(
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _getAllPermis(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Aucun permis trouvé.'));
+          } else {
+            return Expanded(
+              child: ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final permis = snapshot.data![index];
+                  return Card(
+                    margin: EdgeInsets.all(10),
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
                       child: Column(
-                        children: <Widget>[
-                          TextFormField(
-                            controller: _dateController,
-                            decoration: InputDecoration(
-                              labelText: 'DateDebut',
-                              icon: Icon(Icons.calendar_today),
-                            ),
-                            readOnly: true,
-                            onTap: () => _selectDate(context),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('ID Permis: ${permis['idpermis']}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                  Text('Date Début: ${permis['datedebut']}', style: TextStyle(fontSize: 16)),
+                                  Text('Date Fin: ${permis['datefin']}', style: TextStyle(fontSize: 16)),
+                                  Text('Lieu: ${permis['lieu']}', style: TextStyle(fontSize: 16)),
+                                  Text('Projet ID: ${permis['idprojet']}', style: TextStyle(fontSize: 16)),
+                                  Text('Status: ${permis['status']}', style: TextStyle(fontSize: 16)),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () {
+                                      _editPermis(permis);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () {
+                                      _deletePermis(permis['id']);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          TextFormField(
-                            controller: _dateController1,
-                            decoration: InputDecoration(
-                              labelText: 'DateFin',
-                              icon: Icon(Icons.calendar_today),
-                            ),
-                            readOnly: true,
-                            onTap: () => _selectDate1(context),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Lieu',
-                              icon: Icon(Icons.code),
-                            ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Projet',
-                              icon: Icon(Icons.work),
-                            ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              icon: Icon(Icons.done),
-                            ),
-                          ),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Responsable',
-                              icon: Icon(Icons.man),
-                            ),
-                          ),
-
                         ],
                       ),
                     ),
-                  ),
-                  actions: [
-                    ElevatedButton(
-                      child: const Text("Submit"),
-                      onPressed: () {
-                        // your code
-                      },
-                    ),
-                  ],
-                );
-              },
+                  );
+                },
+              ),
             );
-          },
-        ),
+          }
+        },
       ),
       drawer: Drawer(
         child: Container(
@@ -243,5 +201,13 @@ class _Permis1pageState extends State<Permis1page> {
         ),
       ),
     );
+  }
+
+  void _editPermis(Map<String, dynamic> permis) {
+    // Add your edit logic here
+  }
+
+  void _deletePermis(int permisId) {
+    // Add your delete logic here
   }
 }
