@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'database_helper.dart';
 import 'models/Entreprises.dart';
+
 class Entreprise1page extends StatefulWidget {
   const Entreprise1page({Key? key}) : super(key: key);
 
@@ -59,8 +61,12 @@ class _Entreprise1pageState extends State<Entreprise1page> {
     return await Entreprise.instance.getAllCompanies();
   }
 
+  Future<String> _getUserEmail(int userId) async {
+    final user = await DatabaseHelper.instance.getUserById(userId);
+    return user?['email'] ?? 'No email available';
+  }
+
   void _editCompany(Map<String, dynamic> company) {
-    // Create controllers with existing company data
     final _nomController = TextEditingController(text: company['nom']);
     final _raisonSocialeController = TextEditingController(text: company['raisonsocial']);
     final _adresseController = TextEditingController(text: company['adress']);
@@ -154,7 +160,6 @@ class _Entreprise1pageState extends State<Entreprise1page> {
     );
   }
 
-
   void _deleteCompany(int id) async {
     try {
       await Entreprise.instance.deleteEntreprise(id);
@@ -207,54 +212,65 @@ class _Entreprise1pageState extends State<Entreprise1page> {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Erreur: ${snapshot.error}'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('Aucune entreprise trouvée.'));
+                return Center(child: Text('Aucune entreprise disponible.'));
               } else {
                 return Expanded(
                   child: ListView.builder(
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       final company = snapshot.data![index];
-                      return Card(
-                        margin: EdgeInsets.all(10),
-                        child: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Nom: ${company['nom']}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                      Text('Raison Sociale: ${company['raisonsocial']}', style: TextStyle(fontSize: 16)),
-                                      Text('Adresse: ${company['adress']}', style: TextStyle(fontSize: 16)),
-                                      Text('Téléphone: ${company['tel']}', style: TextStyle(fontSize: 16)),
-                                      Text('Utilisateur mail: ${company['iduser']}', style: TextStyle(fontSize: 16)),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit, color: Colors.blue),
-                                        onPressed: () {
-                                          _editCompany(company);
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () {
-                                          _deleteCompany(company['identreprise']);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                      return FutureBuilder<String>(
+                        future: _getUserEmail(company['iduser']),
+                        builder: (context, emailSnapshot) {
+                          if (emailSnapshot.connectionState == ConnectionState.waiting) {
+                            return Card(
+                              margin: const EdgeInsets.all(8.0),
+                              child: ListTile(
+                                title: Text('Chargement de l\'email...'),
                               ),
-                            ],
-                          ),
-                        ),
+                            );
+                          } else if (emailSnapshot.hasError) {
+                            return Card(
+                              margin: const EdgeInsets.all(8.0),
+                              child: ListTile(
+                                title: Text('Erreur de chargement de l\'email'),
+                              ),
+                            );
+                          } else {
+                            return Card(
+                              margin: const EdgeInsets.all(8.0),
+                              elevation: 4.0,
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(16.0),
+                                title: Text(company['nom']),
+                                subtitle: Text(
+                                  'Nom: ${company['nom']}\n'
+                                      'Raison Sociale: ${company['raisonsocial']}\n'
+                                      'Adresse: ${company['adress']}\n'
+                                      'Téléphone: ${company['tel']}\n'
+                                      'Email utilisateur: ${emailSnapshot.data}',
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color:Colors.blue),
+                                      onPressed: () {
+                                        _editCompany(company);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color:Colors.red),
+                                      onPressed: () {
+                                        _deleteCompany(company['identreprise']);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        },
                       );
                     },
                   ),
@@ -295,7 +311,7 @@ class _Entreprise1pageState extends State<Entreprise1page> {
                                 controller: _raisonSocialeController,
                                 decoration: const InputDecoration(
                                   labelText: 'Raison Sociale',
-                                  icon: Icon(Icons.work_outline_rounded),
+                                  icon: Icon(Icons.business),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -325,7 +341,7 @@ class _Entreprise1pageState extends State<Entreprise1page> {
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Veuillez entrer un numéro';
+                                    return 'Veuillez entrer un numéro de téléphone';
                                   }
                                   return null;
                                 },
@@ -333,12 +349,13 @@ class _Entreprise1pageState extends State<Entreprise1page> {
                               TextFormField(
                                 controller: _utilisateurController,
                                 decoration: const InputDecoration(
-                                  labelText: 'Utilisateur',
-                                  icon: Icon(Icons.supervised_user_circle),
+                                  labelText: 'ID Utilisateur',
+                                  icon: Icon(Icons.person),
                                 ),
+                                keyboardType: TextInputType.number,
                                 validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Veuillez entrer un ID utilisateur';
+                                  if (value == null || value.isEmpty || int.tryParse(value) == null) {
+                                    return 'Veuillez entrer un ID utilisateur valide';
                                   }
                                   return null;
                                 },
@@ -349,16 +366,15 @@ class _Entreprise1pageState extends State<Entreprise1page> {
                       ),
                       actions: [
                         ElevatedButton(
-                          child: const Text("Submit"),
+                          child: const Text("Ajouter"),
                           onPressed: _addEntreprise,
-                        ),
+                        )
                       ],
                     );
                   },
                 );
               },
             ),
-
           ),
         ],
       ),
@@ -401,24 +417,23 @@ class _Entreprise1pageState extends State<Entreprise1page> {
               ),
               ListTile(
                 leading: IconButton(
-                  icon: const Icon(Icons.view_list),
+                  icon: const Icon(Icons.list),
                   color: Colors.white,
                   onPressed: () {
                     Navigator.popAndPushNamed(context, '/projets1');
                   },
                 ),
-                title: const Text('Liste des Projets', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                selected: true,
+                title: const Text('Liste des projets', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
               ListTile(
                 leading: IconButton(
-                  icon: const Icon(Icons.list),
+                  icon: const Icon(Icons.view_list),
                   color: Colors.white,
                   onPressed: () {
                     Navigator.popAndPushNamed(context, '/permis1');
                   },
                 ),
-                title: const Text('Liste des permis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                title: const Text('Liste des Permis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 selected: true,
               ),
               ListTile(
@@ -460,4 +475,5 @@ class _Entreprise1pageState extends State<Entreprise1page> {
       ),
     );
   }
+
 }

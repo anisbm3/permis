@@ -88,7 +88,7 @@ class _Permis1pageState extends State<Permis1page> {
                                   IconButton(
                                     icon: Icon(Icons.delete, color: Colors.red),
                                     onPressed: () {
-                                      _deletePermis(permis['id']);
+                                      _deletePermis(permis['idpermis'],context);
                                     },
                                   ),
                                 ],
@@ -207,7 +207,17 @@ class _Permis1pageState extends State<Permis1page> {
     // Add your edit logic here
   }
 
-  void _deletePermis(int permisId) {
-    // Add your delete logic here
+  void _deletePermis(int id, BuildContext context) async {
+    try {
+      await Permis.instance.deletePermis(id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Projet supprimé avec succès!')),
+      );
+      setState(() {}); // Refresh the UI after deleting the project
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la suppression du projet: $e')),
+      );
+    }
   }
 }

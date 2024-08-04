@@ -78,6 +78,13 @@ class Permis {
     final List<Map<String, dynamic>> maps = await db.query(_tableName);
     return maps;
   }
-
+  Future<void> deletePermis(int id) async {
+    final db = await _getDatabase();
+    await db.delete(
+      'permis',
+      where: 'idpermis = ?',
+      whereArgs: [id],
+    );
+  }
 
 }

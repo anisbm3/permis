@@ -27,24 +27,26 @@ class _Projet1pageState extends State<Projet1page> {
 
 
   File? _pickedPdf;
-  void _showPermisDialog(BuildContext context) {
+  void _showPermisDialog(BuildContext context, int idprojet) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           scrollable: true,
-          title: const Text('Gérer les permis'),
+          title: const Text('Gérer les Permis'),
           content: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                Text('ID Projet: $idprojet', style: TextStyle(fontSize: 18)),
+                SizedBox(height: 10),
                 ListTile(
                   leading: Icon(Icons.view_list),
                   title: Text('Afficher les permis'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    _viewPermis(context);
+               //     _viewPermis(context, idprojet);
                   },
                 ),
                 ListTile(
@@ -52,7 +54,7 @@ class _Projet1pageState extends State<Projet1page> {
                   title: Text('Ajouter un permis'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    FormPermis(context);
+                  FormPermis(context, idprojet);
                   },
                 ),
                 ListTile(
@@ -60,7 +62,7 @@ class _Projet1pageState extends State<Projet1page> {
                   title: Text('Modifier un permis'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    _editPermis(context);
+               //     _editPermis(context, idprojet);
                   },
                 ),
                 ListTile(
@@ -68,7 +70,7 @@ class _Projet1pageState extends State<Projet1page> {
                   title: Text('Supprimer un permis'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    _deletePermis(context);
+               //     _deletePermis(context, idprojet);
                   },
                 ),
               ],
@@ -91,7 +93,14 @@ class _Projet1pageState extends State<Projet1page> {
     // Implémentez la logique pour afficher les permis
   }
 
-  void FormPermis(BuildContext context) {
+  void FormPermis(BuildContext context, int idprojet) {
+    final _formKey = GlobalKey<FormState>();
+    final TextEditingController _dateDebutController = TextEditingController();
+    final TextEditingController _dateFinController = TextEditingController();
+    final TextEditingController _statusController = TextEditingController();
+    final TextEditingController _lieuController = TextEditingController();
+    final TextEditingController _projetController = TextEditingController(text: idprojet.toString());
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -105,12 +114,10 @@ class _Projet1pageState extends State<Projet1page> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-
-
                   TextFormField(
                     controller: _dateDebutController,
                     decoration: InputDecoration(
-                      labelText: 'Date Debut',
+                      labelText: 'Date Début',
                       icon: Icon(Icons.calendar_today),
                     ),
                     readOnly: true,
@@ -125,22 +132,19 @@ class _Projet1pageState extends State<Projet1page> {
                     readOnly: true,
                     onTap: () => _selectDate(context, _dateFinController),
                   ),
-
                   TextFormField(
                     controller: _statusController,
                     decoration: const InputDecoration(
-                      labelText: 'Status',
+                      labelText: 'Statut',
                       icon: Icon(Icons.info),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter the status';
+                        return 'Veuillez entrer le statut';
                       }
                       return null;
                     },
                   ),
-
-
                   TextFormField(
                     controller: _lieuController,
                     decoration: const InputDecoration(
@@ -149,7 +153,7 @@ class _Projet1pageState extends State<Projet1page> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter the location';
+                        return 'Veuillez entrer le lieu';
                       }
                       return null;
                     },
@@ -157,17 +161,11 @@ class _Projet1pageState extends State<Projet1page> {
                   TextFormField(
                     controller: _projetController,
                     decoration: const InputDecoration(
-                      labelText: 'Projet',
+                      labelText: 'ID Projet',
                       icon: Icon(Icons.work_outlined),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the location';
-                      }
-                      return null;
-                    },
+                    readOnly: true,
                   ),
-
                 ],
               ),
             ),
@@ -176,8 +174,21 @@ class _Projet1pageState extends State<Projet1page> {
             ElevatedButton(
               child: const Text("Soumettre"),
               onPressed: () {
-                _addPermis(context);
-                Navigator.of(context).pop();
+                if (_formKey.currentState?.validate() ?? false) {
+                  _addPermis(
+                    context,
+                    idprojet,
+                    _dateDebutController.text,
+                    _dateFinController.text,
+                    _statusController.text,
+                    _lieuController.text,
+                  );
+                  Navigator.of(context).pop();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Veuillez remplir le formulaire correctement')),
+                  );
+                }
               },
             ),
             ElevatedButton(
@@ -254,38 +265,43 @@ class _Projet1pageState extends State<Projet1page> {
       });
     }
   }
-  void _addPermis(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {
-      final dateDebut = _dateDebutController.text;
-      final dateFin = _dateFinController.text;
-      final status = _statusController.text;
-      final lieu = _lieuController.text;
-      final idProjet = int.tryParse(_projetController.text) ?? 0; // Default value
+  void _addPermis(
+      BuildContext context,
+      int idprojet,
+      String dateDebut,
+      String dateFin,
+      String status,
+      String lieu,
+      ) async {
+    // Add debug prints
+    print('ID Projet: $idprojet');
+    print('Date Début: $dateDebut');
+    print('Date Fin: $dateFin');
+    print('Status: $status');
+    print('Lieu: $lieu');
 
-      if (dateDebut.isNotEmpty && dateFin.isNotEmpty) {
-        try {
-          await Permis.instance.insertPermis(
-            dateDebut,
-            dateFin,
-            status,
-            lieu,
-            idProjet,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Permis ajouté avec succès!')),
-          );
-          _formKey.currentState!.reset();
-          setState(() {}); // Refresh the UI after adding the permis
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur lors de l\'ajout du permis: $e')),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Les dates doivent être valides')),
+    if (dateDebut.isNotEmpty && dateFin.isNotEmpty) {
+      try {
+        await Permis.instance.insertPermis(
+          dateDebut,
+          dateFin,
+          status,
+          lieu,
+          idprojet,
         );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permis ajouté avec succès!')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de l\'ajout du permis: $e')),
+        );
+        print('Erreur lors de l\'ajout du permis: $e');
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Les dates doivent être valides')),
+      );
     }
   }
 
@@ -550,9 +566,7 @@ class _Projet1pageState extends State<Projet1page> {
                                       IconButton(
                                         icon: Icon(Icons.document_scanner, color: Colors.greenAccent),
                                         onPressed: () {
-
-                                          _showPermisDialog(context);
-
+                                          _showPermisDialog(context, project['idprojet']);
                                         },
                                       ),
                                     ],

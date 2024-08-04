@@ -14,6 +14,8 @@ class DatabaseHelper {
 
   DatabaseHelper._internal();
 
+  static DatabaseHelper get instance => _instance;
+
   Future<Database> get database async {
     if (_database != null) return _database!;
 
@@ -49,7 +51,6 @@ class DatabaseHelper {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
-
   Future<Map<String, dynamic>?> getUser(String email) async {
     final db = await database;
 
@@ -57,6 +58,21 @@ class DatabaseHelper {
       usersTable,
       where: '$columnEmail = ?',
       whereArgs: [email],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.first;
+    } else {
+      return null;
+    }
+  }
+  Future<Map<String, dynamic>?> getUserById(int userId) async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      usersTable,
+      where: '$columnUserId = ?',
+      whereArgs: [userId],
     );
 
     if (maps.isNotEmpty) {
