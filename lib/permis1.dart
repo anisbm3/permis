@@ -51,56 +51,28 @@ class _Permis1pageState extends State<Permis1page> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('Aucun permis trouvé.'));
           } else {
-            return Expanded(
-              child: ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  final permis = snapshot.data![index];
-                  return Card(
-                    margin: EdgeInsets.all(10),
-                    child: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('ID Permis: ${permis['idpermis']}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                  Text('Date Début: ${permis['datedebut']}', style: TextStyle(fontSize: 16)),
-                                  Text('Date Fin: ${permis['datefin']}', style: TextStyle(fontSize: 16)),
-                                  Text('Lieu: ${permis['lieu']}', style: TextStyle(fontSize: 16)),
-                                  Text('Projet ID: ${permis['idprojet']}', style: TextStyle(fontSize: 16)),
-                                  Text('Status: ${permis['status']}', style: TextStyle(fontSize: 16)),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.edit, color: Colors.blue),
-                                    onPressed: () {
-                                      _editPermis(permis);
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () {
-                                      _deletePermis(permis['idpermis'],context);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final permis = snapshot.data![index];
+                return Card(
+                  margin: EdgeInsets.all(10),
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('ID Permis: ${permis['idpermis']}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Date Début: ${permis['datedebut']}', style: TextStyle(fontSize: 16)),
+                        Text('Date Fin: ${permis['datefin']}', style: TextStyle(fontSize: 16)),
+                        Text('Lieu: ${permis['lieu']}', style: TextStyle(fontSize: 16)),
+                        Text('Projet ID: ${permis['idprojet']}', style: TextStyle(fontSize: 16)),
+                        Text('Status: ${permis['status']}', style: TextStyle(fontSize: 16)),
+                      ],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             );
           }
         },
@@ -211,12 +183,12 @@ class _Permis1pageState extends State<Permis1page> {
     try {
       await Permis.instance.deletePermis(id);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Projet supprimé avec succès!')),
+        const SnackBar(content: Text('Permis supprimé avec succès!')),
       );
-      setState(() {}); // Refresh the UI after deleting the project
+      setState(() {}); // Refresh the UI after deleting the permit
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de la suppression du projet: $e')),
+        SnackBar(content: Text('Erreur lors de la suppression du permis: $e')),
       );
     }
   }

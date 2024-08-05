@@ -10,6 +10,7 @@ import 'package:pp/home.dart';
 import 'package:pp/permis.dart';
 import 'package:pp/login.dart';
 import 'package:pp/permis1.dart';
+import 'package:pp/permis2.dart';
 import 'package:pp/signup.dart';
 
 import 'conf.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         '/projets1': (context) =>  Projet1page(),
         '/permis': (context) => const Permispage(),
         '/permis1': (context) => const Permis1page(),
+       // '/permis2': (context) => const Permis2Page(idProjet: idProjet, permits: permits),
         '/cal': (context) => const Calpage(),
         '/cal1': (context) =>  Cal1page(),
         '/ent': (context) => const Entreprisepage(),

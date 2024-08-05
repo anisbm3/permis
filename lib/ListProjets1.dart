@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:path/path.dart';
+import 'package:pp/permis2.dart';
 import 'models/Permis.dart';
 import 'models/Projets.dart';
 import 'package:path/path.dart' as Path;
@@ -46,7 +47,7 @@ class _Projet1pageState extends State<Projet1page> {
                   title: Text('Afficher les permis'),
                   onTap: () {
                     Navigator.of(context).pop();
-               //     _viewPermis(context, idprojet);
+                   _viewPermis(context, idprojet);
                   },
                 ),
                 ListTile(
@@ -57,22 +58,7 @@ class _Projet1pageState extends State<Projet1page> {
                   FormPermis(context, idprojet);
                   },
                 ),
-                ListTile(
-                  leading: Icon(Icons.edit),
-                  title: Text('Modifier un permis'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-               //     _editPermis(context, idprojet);
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.delete),
-                  title: Text('Supprimer un permis'),
-                  onTap: () {
-                    Navigator.of(context).pop();
-               //     _deletePermis(context, idprojet);
-                  },
-                ),
+
               ],
             ),
           ),
@@ -89,8 +75,21 @@ class _Projet1pageState extends State<Projet1page> {
     );
   }
 
-  void _viewPermis(BuildContext context) {
-    // Implémentez la logique pour afficher les permis
+  void _viewPermis(BuildContext context, int idProjet) async {
+    try {
+      List<Map<String, dynamic>> permits = await Permis.instance.getPermisByProjectId(idProjet);
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => Permis2Page(idProjet: idProjet),
+        ),
+      );
+    } catch (e) {
+      // Handle the error by showing a snack bar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la récupération des permis: $e')),
+      );
+    }
   }
 
   void FormPermis(BuildContext context, int idprojet) {
@@ -203,13 +202,6 @@ class _Projet1pageState extends State<Projet1page> {
     );
   }
 
-  void _editPermis(BuildContext context) {
-    // Implémentez la logique pour modifier un permis
-  }
-
-  void _deletePermis(BuildContext context) {
-    // Implémentez la logique pour supprimer un permis
-  }
 
   @override
   void dispose() {

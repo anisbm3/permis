@@ -86,5 +86,34 @@ class Permis {
       whereArgs: [id],
     );
   }
+  Future<List<Map<String, dynamic>>> getPermisByProjectId(int idprojet) async {
+    final db = await _getDatabase();
+    return await db.query(
+      _tableName,
+      where: '$_columnIdprojet = ?',
+      whereArgs: [idprojet],
+    );
+  }
 
+  Future<void> updatePermis(
+      int idpermis,
+      String datedebut,
+      String datefin,
+      String status,
+      String lieu,
+      int idprojet,) async {
+    final db = await _getDatabase();
+    await db.update(
+      _tableName,
+      {
+        _columnDebut: datedebut,
+        _columnFin: datefin,
+        _columnStatus: status,
+        _columnLieu: lieu,
+        _columnIdprojet: idprojet,
+      },
+      where: '$_columnId = ?',
+      whereArgs: [idpermis],
+    );
+  }
 }
